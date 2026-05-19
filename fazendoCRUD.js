@@ -52,9 +52,6 @@ const server = http.createServer((req, res) => {
         req.on('data', parte => {
             body += parte; //Concatena os pedaços
         });
-         res.end(JSON.stringify({
-        mensagem: 'Rota não encontrada'
-        }));
         req.on('end', () => {
             const livroAtualizado = JSON.parse(body)
             
@@ -73,11 +70,37 @@ const server = http.createServer((req, res) => {
         return;
     };
 
+    // Contruindo o método DELETE - remover livro
+    if (url === "/livros" && metodo === "DELETE") {
+        let body = '';
+        req.on('data', parte => {
+            body += parte;
+        });
+
+        req.on('end', () => {
+            // Recebe o ID do livro a ser removido
+            const dados = JSON.parse(body);
+
+            livros = livros.filter(livro => livro.id !== dados.id);
+
+            res.statusCode = 200;
+
+            res.end(JSON.stringify({
+                mensagem: "Livro removido com sucesso!",
+                livros: livros
+            }));
+        });
+        return;
+    };
+
     // Rota não encontrada 
     res.statusCode= 404; // Não encontrado
     // Convertendo a resposta em JSON e exibindo a mensagem
+    res.end(JSON.stringify({
+        mensagem: 'Rota não encontrada'
+    }));
 });
 
 server.listen(3000, () => {
-    console.log(("Server running in http://localhost:3000"))
-})
+    console.log(("Server running in http://localhost:3000"));
+});
